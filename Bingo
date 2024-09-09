@@ -1,0 +1,201 @@
+import java.io.*;
+import java.util.*;
+
+public class Bingo {
+
+	public static void main(String[] args) throws IOException
+	{
+		int[][] card = new int[5][5];	
+    fillCard(card);
+    printCard(card);
+    playGame(card);
+    printCard(card);
+
+	}
+ 
+  private static int checkForWin(boolean[] pickedNumbers, int[][] givenCard)
+  {
+    //Pre: The picked numbers and given card have been found
+    //Post: The picked numbers and given card have been compared to find a win
+    
+    //Find win by horizontal
+    for(int i=0; i<givenCard.length; i++)
+    {
+      int sum = 0;
+      for(int j=0; j<givenCard[i].length; j++)
+      {
+        if(pickedNumbers[givenCard[i][j]] == true)
+        {
+          givenCard[i][j] = 0;
+        }
+        sum += givenCard[i][j];
+      }
+      if(sum == 0)
+      {
+        return 1;
+      }
+    }
+    
+    //Find win by vertical
+    for(int i=0; i<givenCard.length; i++)
+    {
+      int sum = 0;
+      for(int j=0; j<givenCard[i].length; j++)
+      {
+        if(pickedNumbers[givenCard[i][j]] == true)
+        {
+          givenCard[i][j] = 0;
+        }
+        sum += givenCard[j][i];
+      }
+      if(sum == 0)
+      {
+        return 2;
+      }
+    }
+    
+    //Find win by main diagonal
+    int sum = 0;
+    for(int i=0; i<givenCard.length; i++)
+    {
+      for(int j=0; j<givenCard[i].length; j++)
+      {
+        if(i == j)
+        {
+          if(pickedNumbers[givenCard[i][j]] == true)
+          {
+            givenCard[i][j] = 0;
+          }
+          sum += givenCard[i][j];
+        }
+      }
+    }
+    if(sum == 0)
+    {
+      return 3;
+    }
+    
+    //Find win by anti diagonal
+    int antiSum = 0;
+    for(int i=4; i>-1; i--)
+    {
+      for(int j=4; j>-1; j--)
+      {
+        if(i + j == 4)
+        {
+          if(pickedNumbers[givenCard[i][j]] == true)
+          {
+            givenCard[i][j] = 0;
+          }
+          antiSum += givenCard[i][j];
+        }
+      }
+    }
+    if(antiSum == 0)
+    {
+      return 3;
+    }
+    return 0;
+  }
+	
+  //Input values fom bingo.in into the card
+	private static void fillCard (int[][] bingoCard)
+	{
+    //Pre: Array of bingo card has been initialized 
+    //Post: The bingo card has been filled with the bingo card values
+    try
+    {
+      Scanner scanner = new Scanner(new File("bingo.in"));
+      for(int i=0; i<bingoCard.length; i++)
+      {
+        for(int j=0; j<bingoCard[i].length; j++)
+        {
+          bingoCard[i][j] = scanner.nextInt();
+        }
+      }
+    }
+    catch(IOException e)
+    {
+      System.out.println(e.getMessage());
+    }
+       
+	}
+ 
+  //Generate random number
+  private static int generateRandom()
+  {
+    //Pre: No random picks have been found
+    //Post: Random picks for the bingo game have been collected
+    int randomNumber = (int)Math.round((Math.random() * 74 + 1));
+    return randomNumber;
+  }
+  
+  //Call the methods required to generate the random draws and declare a win
+  private static void playGame(int[][] bingoCard)
+  {
+    //Pre: The bingo card has been initialized and filled with values
+    //Post: The winning numbers have been found and a win has found
+    boolean[] pickedNumbers = new boolean[76];
+    int numOfPicks = 0;
+    int randomNum = 0;
+    
+    while(checkForWin(pickedNumbers, bingoCard) == 0)
+    {
+      randomNum = generateRandom();
+      if(pickedNumbers[randomNum] != true)
+      {
+        pickedNumbers[randomNum] = true;
+        numOfPicks++;
+      }
+    }
+    
+    System.out.println();
+    
+    //Check to see what won the bingo
+    if(checkForWin(pickedNumbers, bingoCard) == 1)
+    {
+      System.out.println("YOU WIN WITH A HORIZONTAL BINGO AFTER " + numOfPicks + " PICKS!");
+    }
+    else if(checkForWin(pickedNumbers, bingoCard) == 2)
+    {
+      System.out.println("YOU WIN WITH A VERTICAL BINGO AFTER " + numOfPicks + " PICKS!");
+    }
+    else if(checkForWin(pickedNumbers, bingoCard) == 3)
+    {
+      System.out.println("YOU WIN WITH A DIAGONAL BINGO AFTER " + numOfPicks + " PICKS!");
+    }
+  }
+	
+  //Print bingo card, and place an X if a number has already been chosen
+	private static void printCard (int[][] bingoCard)
+	{
+    //Pre: The bingo card array has been filled with values
+    //Post: The card is printed to the user with bingo shown if it is gotten
+    System.out.println("YOUR BINGO CARD :");
+    System.out.println();
+    System.out.println("  B   I   N   G   O");
+    System.out.println("---------------------");
+    for(int i=0; i<bingoCard.length; i++)
+    {
+      System.out.print("|");
+      for(int j=0; j<bingoCard[i].length; j++)
+      {
+        if(bingoCard[i][j] == 0)
+        {
+          System.out.print("X  |");
+        }
+        else if(bingoCard[i][j] < 10)
+        {
+          System.out.print(bingoCard[i][j] + "  |");
+        }
+        else
+        {
+          System.out.print(bingoCard[i][j] + " |");
+        }
+      }
+      System.out.println();
+    }
+    System.out.println("---------------------");
+	}
+
+}
